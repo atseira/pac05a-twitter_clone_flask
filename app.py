@@ -64,7 +64,7 @@ def create_app():
         logout_user()
         return redirect('/login')
 
-    from api.resources import Api, TweetsResource, LoginResource, PostTweetResource
+    from api.resources import Api, TweetsResource, LoginResource, LogoutResource, PostTweetResource
 
     api = Api(app)
 
@@ -73,7 +73,8 @@ def create_app():
     # api.add_resource(TweetResource, '/api/tweets/<int:tweet_id>')
     api.add_resource(TweetsResource, '/api/tweets')  # Add this line for the new endpoint
     api.add_resource(LoginResource, '/api/login')  # Add this line for the new login endpoint
-    api.add_resource(PostTweetResource, '/api/post_tweet')  # Add this line for the new endpoint
+    api.add_resource(PostTweetResource, '/api/post-tweet')  # Add this line for the new endpoint
+    api.add_resource(LogoutResource, '/api/logout')
 
     from flask_cors import CORS
 

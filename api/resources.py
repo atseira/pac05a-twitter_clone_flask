@@ -2,7 +2,7 @@ from flask_restful import Resource, Api, reqparse
 from models.models import db, User, Tweet
 from flask import jsonify, request
 from werkzeug.security import check_password_hash
-from flask_login import login_required, current_user, login_user
+from flask_login import login_required, current_user, login_user, logout_user
 
 
 parser = reqparse.RequestParser()
@@ -54,15 +54,20 @@ class LoginResource(Resource):
             print("Failed login")
             return {'status': 'fail', 'message': 'Invalid credentials'}, 401
 
+class LogoutResource(Resource):
+    def post(self):
+        logout_user()
+        return {'message': 'Logged out successfully'}, 200
+
 class PostTweetResource(Resource):
     @login_required
     def post(self):
-        data = request.get_json()
-        content = data.get('content')
-        
-        new_tweet = Tweet(content=content, user_id=current_user.id)
-        
-        db.session.add(new_tweet)
-        db.session.commit()
-        
-        return {'message': 'Tweet posted successfully', 'tweet_id': new_tweet.id}
+        try:
+            data = request.json
+            content = data['content']
+            new_tweet = Tweet(content=content, user_id=current_user.id)
+            db.session.add(new_tweet)
+            db.session.commit()
+            return {'id': new_tweet.id, 'content': new_tweet.content, 'user_id': new_tweet.user_id}
+        except Exception as e:
+            return {'message': str(e)}, 400
