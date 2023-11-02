@@ -13,6 +13,9 @@ def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
     app.config['SECRET_KEY'] = 'mysecretkey'
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_SECURE'] = False
+
 
     # Initialize database with app
     db.init_app(app)
@@ -27,6 +30,11 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
+    
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return {'message': 'Please log in to access this page.'}, 401
+
 
     class MyAdminIndexView(AdminIndexView):
         def is_accessible(self):
@@ -56,18 +64,20 @@ def create_app():
         logout_user()
         return redirect('/login')
 
-    from api.resources import Api, UserResource, TweetResource, TweetsResource  # Add TweetsResource
+    from api.resources import Api, TweetsResource, LoginResource, PostTweetResource
 
     api = Api(app)
 
     # Add API resources
-    api.add_resource(UserResource, '/api/users/<int:user_id>')
-    api.add_resource(TweetResource, '/api/tweets/<int:tweet_id>')
+    # api.add_resource(UserResource, '/api/users/<int:user_id>')
+    # api.add_resource(TweetResource, '/api/tweets/<int:tweet_id>')
     api.add_resource(TweetsResource, '/api/tweets')  # Add this line for the new endpoint
+    api.add_resource(LoginResource, '/api/login')  # Add this line for the new login endpoint
+    api.add_resource(PostTweetResource, '/api/post_tweet')  # Add this line for the new endpoint
 
     from flask_cors import CORS
 
-    CORS(app)  # This will enable CORS for all routes
+    CORS(app, supports_credentials=True)  # This will enable CORS for all routes
 
     return app
 

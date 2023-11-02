@@ -1,6 +1,9 @@
 from flask_restful import Resource, Api, reqparse
-from models.models import User, Tweet
+from models.models import db, User, Tweet
 from flask import jsonify, request
+from werkzeug.security import check_password_hash
+from flask_login import login_required, current_user, login_user
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('page', type=int, required=False, default=1, help='Page number')
@@ -15,6 +18,7 @@ class TweetResource(Resource):
     def get(self, tweet_id):
         tweet = Tweet.query.get_or_404(tweet_id)
         return jsonify({'content': tweet.content, 'user_id': tweet.user_id})
+
 
 
 class TweetsResource(Resource):
@@ -34,3 +38,31 @@ class TweetsResource(Resource):
             tweets.append(tweet_data)
         
         return {'tweets': tweets}
+
+class LoginResource(Resource):
+    def post(self):
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            print("Success login")
+            return {'status': 'success', 'message': 'Logged in successfully', 'user': {'username': user.username}}, 200
+        else:
+            print("Failed login")
+            return {'status': 'fail', 'message': 'Invalid credentials'}, 401
+
+class PostTweetResource(Resource):
+    @login_required
+    def post(self):
+        data = request.get_json()
+        content = data.get('content')
+        
+        new_tweet = Tweet(content=content, user_id=current_user.id)
+        
+        db.session.add(new_tweet)
+        db.session.commit()
+        
+        return {'message': 'Tweet posted successfully', 'tweet_id': new_tweet.id}
