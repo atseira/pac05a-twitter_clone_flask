@@ -9,6 +9,7 @@ def init_db():
         db.create_all()
         admin = User(username='admin')
         admin.set_password('admin')
+        admin.make_admin()
         db.session.add(admin)
         db.session.commit()
 

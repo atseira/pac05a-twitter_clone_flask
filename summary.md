@@ -1,4 +1,11 @@
-### Revised Comprehensive Project Summary
+
+### Updated Comprehensive Project Summary
+
+#### Additional Enhancements:
+
+**User Roles**: The `User` model now includes an `is_admin` boolean attribute indicating whether a user is an admin or a standard user.
+
+**UI Enhancements**: The Vue.js frontend has been enhanced using Tailwind CSS for a visually appealing and responsive design.
 
 #### Flask Backend Structure:
 
@@ -6,10 +13,10 @@
 YourFlaskApp/
 ├── models/
 │   ├── __init__.py
-│   └── models.py       # Contains User and Tweet data models
+│   └── models.py       # Enhanced User model with 'is_admin' attribute
 ├── admin/
 │   ├── __init__.py
-│   └── admin_views.py  # Contains custom ModelView classes for Flask-Admin
+│   └── admin_views.py  # Updated ModelView classes and added AdminIndexView for Flask-Admin
 ├── api/
 │   ├── __init__.py
 │   └── resources.py    # Contains API endpoints
@@ -26,12 +33,10 @@ YourFlaskApp/
 YourVueApp/
 ├── src/
 │   ├── components/
-│   │   ├── TweetList.vue      # Component to display the list of tweets
-│   │   ├── LoginForm.vue      # Component for user login
-│   │   └── PostTweetForm.vue  # Component for posting tweets
-│   ├── store/
-│   │   └── index.js           # Pinia store for global state management
-│   ├── App.vue                # Main Vue component
+│   │   ├── TweetList.vue      # Enhanced to display tweets in cards using Tailwind CSS
+│   │   ├── LoginForm.vue      # Enhanced with Tailwind CSS for better aesthetics
+│   │   └── PostTweetForm.vue  # Enhanced with Tailwind CSS for better aesthetics
+│   ├── App.vue                # Main Vue component enhanced with a beautiful navbar using Tailwind CSS
 │   ├── main.js                # Entry point for Vue application
 │   └── router.js              # Vue Router for frontend routing
 ├── public/
@@ -43,32 +48,27 @@ YourVueApp/
 #### Key Components:
 
 - **Backend:**
-  - **models/models.py**: Defines `User` and `Tweet` SQLAlchemy models.
-  - **admin/admin_views.py**: Custom Flask-Admin `ModelView` classes for admin interface.
-  - **api/resources.py**: API endpoints for user authentication and tweet management.
-  - **app.py**: Main Flask application setup with CORS, Flask-Admin, Flask-Login, and Flask-RESTful.
+  - **models/models.py**: Updated to include `is_admin` attribute in `User` model.
+  - **admin/admin_views.py**: Enhanced to restrict access to admin interface based on `is_admin` attribute.
+  - **app.py**: Updated to use a custom `AdminIndexView` class to control access to `/admin/`.
 
 - **Frontend:**
-  - **TweetList.vue**: Displays tweets fetched from Flask API.
-  - **LoginForm.vue**: Manages user authentication.
-  - **PostTweetForm.vue**: Allows users to post tweets.
-  - **App.vue**: Main Vue component with navigation and global state.
-  - **router.js**: Vue Router configurations for handling frontend routes and navigation.
-  - **store/index.js**: Pinia store for managing global state.
-  - **main.js**: Entry point of the Vue application.
+  - **TweetList.vue**: Enhanced to display tweets in a card-like design using Tailwind CSS.
+  - **LoginForm.vue**: Beautified login form using Tailwind CSS.
+  - **PostTweetForm.vue**: Beautified tweet posting form using Tailwind CSS.
+  - **App.vue**: Navbar is beautified using Tailwind CSS.
 
 #### Functionality:
 
-- Flask-Admin interface for managing users and tweets.
-- Flask-Login for user authentication.
-- RESTful API for user authentication and tweet management.
-- Vue.js frontend for displaying tweets, user login, and posting tweets.
+- **Enhanced User Roles**: Introduced user roles, where users can be either admins or standard users.
+- **Restricted Admin Access**: Only admin users can access Flask-Admin interface. Standard users are redirected to the homepage when attempting to access `/admin/`.
+- **UI Enhancements**: The Vue.js frontend has been beautified using Tailwind CSS.
 
 #### Valid URLs:
 
 - **Backend:**
   - **Flask-Admin**:
-    - `/admin`: Admin interface for managing users and tweets.
+    - `/admin`: Admin interface for managing users and tweets (accessible only by admin users).
   - **API Endpoints**:
     - `/api/tweets`: Fetch paginated tweets.
     - `/api/login`: Authenticate a user.
@@ -76,15 +76,14 @@ YourVueApp/
     - `/api/post-tweet`: Post a new tweet.
 
 - **Frontend:**
-  - `/`: Homepage displaying the list of tweets.
-  - `/login`: Login page.
-  - `/post-tweet`: Page for posting a new tweet.
+  - `/`: Homepage displaying the list of tweets in a card-like design.
+  - `/login`: Beautifully designed login page.
+  - `/post-tweet`: Beautifully designed page for posting a new tweet.
 
 #### Important Notes:
 
-- API expects pagination parameters (`page` and `per_page`) as query parameters.
-- CORS is configured to allow requests from the Vue frontend.
-- Pinia is used for state management in the Vue app, replacing Vuex.
-- Vue Router is configured in `router.js` to manage frontend navigation.
+- Access control has been added to the Flask-Admin interface to allow only admin users.
+- The `is_admin` attribute in the `User` model determines whether a user has admin privileges.
+- The Vue frontend has been aesthetically enhanced using Tailwind CSS.
 
-This structure and functionality form a complete full-stack application with user authentication, CRUD operations, and a dynamic frontend.
+This updated structure and functionality form a secure and visually appealing full-stack application ensuring that admin privileges are only accessible to authorized users while providing a dynamic and responsive user interface.
