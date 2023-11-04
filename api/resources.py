@@ -2,9 +2,7 @@ from flask_restful import Resource, Api, reqparse
 from models.models import db, User, Tweet, Like
 from flask import jsonify, request
 from werkzeug.security import check_password_hash
-from flask_login import logout_user
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 
 
 parser = reqparse.RequestParser()
@@ -24,12 +22,20 @@ class TweetResource(Resource):
 
 
 class TweetsResource(Resource):
+    @jwt_required(optional=True)
     def get(self):
-        page = int(request.args.get('page', 1))  # Use Flask's native request.args
+        page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 10))
-        
+
         paginated_tweets = Tweet.query.paginate(page=page, per_page=per_page, error_out=False)
         tweets = []
+
+        current_user_identity = get_jwt_identity()
+        current_user = None
+        if current_user_identity:
+            current_username = current_user_identity['username']
+            current_user = User.query.filter_by(username=current_username).first()
+
         for tweet in paginated_tweets.items:
             tweet_data = {
                 'id': tweet.id,
@@ -37,9 +43,9 @@ class TweetsResource(Resource):
                 'user_id': tweet.user_id,
                 'username': tweet.user.username,
                 'likes': tweet.likes.count(),
+                'liked': current_user.id in [like.user_id for like in tweet.likes] if current_user else False
             }
             tweets.append(tweet_data)
-        
         return {'tweets': tweets}
 
 class LoginResource(Resource):
@@ -52,6 +58,21 @@ class LoginResource(Resource):
             access_token = create_access_token(identity={'username': user.username})
             return {'access_token': access_token}, 200
         return {'message': 'Invalid credentials'}, 401
+
+class CurrentUserResource(Resource):
+    @jwt_required()
+    def get(self):
+        username = get_jwt_identity()['username']
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return {'message': 'User not found'}, 404
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            # ... any other user data fields you want to include
+        }
+        return {'user': user_data}, 200
+
 
 class LogoutResource(Resource):
     @jwt_required()
@@ -109,4 +130,7 @@ class LikeTweetResource(Resource):
             db.session.commit()
             return {"message": "Tweet liked", "likes": tweet.likes.count()}, 200
         else:
-            return {"message": "Tweet already liked", "likes": tweet.likes.count()}, 400
+            # Unlike the tweet
+            db.session.delete(like)
+            db.session.commit()
+            return {"message": "Tweet unliked", "likes": tweet.likes.count()}, 200

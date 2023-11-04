@@ -1,89 +1,54 @@
-
-### Updated Comprehensive Project Summary
-
-#### Additional Enhancements:
-
-**User Roles**: The `User` model now includes an `is_admin` boolean attribute indicating whether a user is an admin or a standard user.
-
-**UI Enhancements**: The Vue.js frontend has been enhanced using Tailwind CSS for a visually appealing and responsive design.
-
-#### Flask Backend Structure:
-
-```
+Backend (Flask):
+Directory Structure:
+bash
+Copy code
 YourFlaskApp/
 ├── models/
 │   ├── __init__.py
-│   └── models.py       # Enhanced User model with 'is_admin' attribute
+│   └── models.py       # Contains 'is_admin' attribute in User model
 ├── admin/
 │   ├── __init__.py
-│   └── admin_views.py  # Updated ModelView classes and added AdminIndexView for Flask-Admin
+│   └── admin_views.py  # Restricts admin access based on 'is_admin' attribute
 ├── api/
 │   ├── __init__.py
-│   └── resources.py    # Contains API endpoints
+│   └── resources.py    # Handles like and unlike operations, and fetches tweets
 ├── templates/
-│   └── login.html      # Login template for the Flask-Admin interface
-├── app.py              # Main application setup, routes, and initialization
-├── init_db.py          # Script to initialize the database and create an admin user
-└── reset_db.py         # Script to reset the database (implemented)
-```
-
-#### Vue Frontend Structure:
-
-```
+│   └── login.html      # Login template for Flask-Admin interface
+├── app.py              # Main application setup and initialization
+├── init_db.py          # Script to initialize the database
+└── reset_db.py         # Script to reset the database
+Key Points:
+models.py: Introduced the 'is_admin' attribute in the User model to denote administrative privileges.
+admin_views.py: Ensures that only users with 'is_admin' set to True can access the Flask-Admin interface.
+resources.py: Implements tweet fetching and like/unlike operations, taking into account whether a user is authenticated. It correctly computes the 'liked' status for each tweet with respect to the current user.
+Frontend (Vue.js):
+Directory Structure:
+php
+Copy code
 YourVueApp/
 ├── src/
 │   ├── components/
-│   │   ├── TweetList.vue      # Enhanced to display tweets in cards using Tailwind CSS
-│   │   ├── LoginForm.vue      # Enhanced with Tailwind CSS for better aesthetics
-│   │   └── PostTweetForm.vue  # Enhanced with Tailwind CSS for better aesthetics
-│   ├── App.vue                # Main Vue component enhanced with a beautiful navbar using Tailwind CSS
+│   │   ├── TweetList.vue      # Displays tweets and updates like count in real-time
+│   │   ├── LoginForm.vue      # Beautified login form
+│   │   └── PostTweetForm.vue  # Beautified tweet post form
+│   ├── store/
+│   │   └── index.js            # Contains Pinia store setup
+│   ├── App.vue                # Main component with enhanced navbar
 │   ├── main.js                # Entry point for Vue application
 │   └── router.js              # Vue Router for frontend routing
 ├── public/
 │   └── index.html
+├── styles/
+│   └── styles.css             # Contains TailwindCSS styling
 ├── package.json               # Dependencies and scripts
 └── vue.config.js              # Vue CLI configuration
-```
-
-#### Key Components:
-
-- **Backend:**
-  - **models/models.py**: Updated to include `is_admin` attribute in `User` model.
-  - **admin/admin_views.py**: Enhanced to restrict access to admin interface based on `is_admin` attribute.
-  - **app.py**: Updated to use a custom `AdminIndexView` class to control access to `/admin/`.
-
-- **Frontend:**
-  - **TweetList.vue**: Enhanced to display tweets in a card-like design using Tailwind CSS.
-  - **LoginForm.vue**: Beautified login form using Tailwind CSS.
-  - **PostTweetForm.vue**: Beautified tweet posting form using Tailwind CSS.
-  - **App.vue**: Navbar is beautified using Tailwind CSS.
-
-#### Functionality:
-
-- **Enhanced User Roles**: Introduced user roles, where users can be either admins or standard users.
-- **Restricted Admin Access**: Only admin users can access Flask-Admin interface. Standard users are redirected to the homepage when attempting to access `/admin/`.
-- **UI Enhancements**: The Vue.js frontend has been beautified using Tailwind CSS.
-
-#### Valid URLs:
-
-- **Backend:**
-  - **Flask-Admin**:
-    - `/admin`: Admin interface for managing users and tweets (accessible only by admin users).
-  - **API Endpoints**:
-    - `/api/tweets`: Fetch paginated tweets.
-    - `/api/login`: Authenticate a user.
-    - `/api/logout`: Log out a user.
-    - `/api/post-tweet`: Post a new tweet.
-
-- **Frontend:**
-  - `/`: Homepage displaying the list of tweets in a card-like design.
-  - `/login`: Beautifully designed login page.
-  - `/post-tweet`: Beautifully designed page for posting a new tweet.
-
-#### Important Notes:
-
-- Access control has been added to the Flask-Admin interface to allow only admin users.
-- The `is_admin` attribute in the `User` model determines whether a user has admin privileges.
-- The Vue frontend has been aesthetically enhanced using Tailwind CSS.
-
-This updated structure and functionality form a secure and visually appealing full-stack application ensuring that admin privileges are only accessible to authorized users while providing a dynamic and responsive user interface.
+Key Points:
+TweetList.vue: Responsible for displaying the tweets, allowing users to toggle likes, and updating the like count dynamically. It also ensures that the 'Like' button correctly reflects the 'liked' status of tweets for the logged-in user.
+LoginForm.vue & PostTweetForm.vue: Forms have been beautified and enhanced using Tailwind CSS.
+store/index.js: Manages the state of the application including user authentication and tweets using Pinia store.
+styles/styles.css: TailwindCSS is used for a consistent and responsive design.
+Functionality:
+The application ensures real-time updates of like counts.
+Admin access is restricted to users with administrative privileges.
+UI improvements have been made using Tailwind CSS to provide a seamless and responsive experience.
+The 'liked' status of tweets is accurately reflected for logged-in users.
