@@ -27,7 +27,7 @@ class TweetsResource(Resource):
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 10))
 
-        paginated_tweets = Tweet.query.paginate(page=page, per_page=per_page, error_out=False)
+        paginated_tweets = Tweet.query.order_by(Tweet.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
         tweets = []
 
         current_user_identity = get_jwt_identity()
@@ -46,7 +46,17 @@ class TweetsResource(Resource):
                 'liked': current_user.id in [like.user_id for like in tweet.likes] if current_user else False
             }
             tweets.append(tweet_data)
-        return {'tweets': tweets}
+
+        # Include pagination info in the response
+        return {
+            'tweets': tweets,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total_pages': paginated_tweets.pages,
+                'total_items': paginated_tweets.total
+            }
+        }
 
 class LoginResource(Resource):
     def post(self):
