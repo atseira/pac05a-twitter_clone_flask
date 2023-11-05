@@ -148,15 +148,16 @@ class PostTweetResource(Resource):
 
                 # Generate the direct image URL
                 image_url = f"http://localhost:9000/{bucket_name}/{unique_filename}"
-                            # Create a new tweet
-                new_tweet = Tweet(content=content, user_id=current_user_id, image_url=image_url)
-                db.session.add(new_tweet)
-                db.session.commit()
+            
+            # Create a new tweet
+            new_tweet = Tweet(content=content, user_id=current_user_id, image_url=image_url)
+            db.session.add(new_tweet)
+            db.session.commit()
 
-                return {'id': new_tweet.id,
-                        'content': new_tweet.content,
-                        'user_id': new_tweet.user_id,
-                        'image_url': new_tweet.image_url}
+            return {'id': new_tweet.id,
+                    'content': new_tweet.content,
+                    'user_id': new_tweet.user_id,
+                    'image_url': new_tweet.image_url}
 
         except Exception as e:
                 return {'message': str(e)}, 400
