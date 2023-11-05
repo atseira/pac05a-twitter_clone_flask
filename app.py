@@ -4,7 +4,8 @@ from flask_login import UserMixin, LoginManager, current_user, login_user, logou
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_jwt_extended import JWTManager
-
+from minio import Minio
+import json
 
 from admin.admin_views import KlonxAdminIndexView
 
@@ -19,7 +20,43 @@ def create_app():
     app.config['SECRET_KEY'] = 'mysecretkey'
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['SESSION_COOKIE_SECURE'] = False
-    app.config['JWT_SECRET_KEY'] = 'mysecretkey' 
+    app.config['JWT_SECRET_KEY'] = 'mysecretkey'
+
+    # MinIO Configuration
+    app.config['MINIO_ENDPOINT'] = 'minio:9000'
+    app.config['MINIO_ACCESS_KEY'] = 'your-access-key'
+    app.config['MINIO_SECRET_KEY'] = 'your-secret-key'
+    app.config['MINIO_BUCKET'] = 'klonx-bucket'
+
+    # Initialize MinIO Client
+    minio_client = Minio(
+        app.config['MINIO_ENDPOINT'],
+        access_key=app.config['MINIO_ACCESS_KEY'],
+        secret_key=app.config['MINIO_SECRET_KEY'],
+        secure=False  # Set to True for secure (HTTPS) connection
+    )
+    app.minio_client = minio_client
+
+    # Check if the bucket exists, if not create it
+    if not minio_client.bucket_exists(app.config['MINIO_BUCKET']):
+        minio_client.make_bucket(app.config['MINIO_BUCKET'])
+
+    bucket_name = app.config['MINIO_BUCKET']
+    public_read_policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Action": ["s3:GetObject"],
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"},
+                "Resource": [f"arn:aws:s3:::{bucket_name}/*"],
+                "Sid": "",
+            }
+        ],
+    }
+    public_read_policy_str = json.dumps(public_read_policy)
+    # Set the policy on the bucket
+    minio_client.set_bucket_policy(bucket_name, public_read_policy_str)
 
     # Initialize database with app
     db.init_app(app)

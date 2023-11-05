@@ -27,6 +27,7 @@ class Tweet(db.Model):
     content = db.Column(db.String(280), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     likes = db.relationship('Like', backref='tweet', lazy='dynamic')
+    image_url = db.Column(db.String(), nullable=True)  # New column for MinIO image URL
 
 
 class Like(db.Model):
